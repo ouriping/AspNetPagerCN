@@ -378,4 +378,7 @@
   <data name="desc_HorizontalAlign" xml:space="preserve">
     <value>分页按钮的水平对齐方式</value>
   </data>
+  <data name="desc_ShowPageSizeBox" xml:space="preserve">
+    <value>是否显示页条数下拉选项</value>
+  </data>
 </root>

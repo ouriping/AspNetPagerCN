@@ -106,6 +106,14 @@ namespace Wuqi.Webdiyer
             else
             {
                 inputPageIndex = Page.Request.Form[UniqueID + "_input"];
+
+                #region ########## ÐÂÔöShowPageSizeBoxÊôÐÔ ##################
+                if (null != Page.Request.Form[UniqueID + "_ChangePageSize"])
+                {
+                    this.PageSize = int.Parse(Page.Request.Form[UniqueID + "_ChangePageSize"]);
+                }
+                #endregion
+
             }
             base.OnLoad(e);
             if ((UrlPaging || (!UrlPaging && PageIndexBoxType == PageIndexBoxType.TextBox)) && (ShowPageIndexBox == ShowPageIndexBox.Always || (ShowPageIndexBox == ShowPageIndexBox.Auto && PageCount >= ShowBoxThreshold)))

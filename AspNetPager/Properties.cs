@@ -743,6 +743,27 @@ namespace Wuqi.Webdiyer
                 ViewState["PageSize"] = value;
             }
         }
+        //2017.01.06
+        /// <include file='AspNetPagerDocs.xml' path='AspNetPagerDoc/Property[@name="ShowPageSizeBox"]/*'/>  
+        [Browsable(true), ANPDescription("desc_ShowPageSizeBox"), ANPCategory("cat_Paging"), DefaultValue(false)]
+        public bool ShowPageSizeBox
+        {
+            get
+            {
+                if (null != cloneFrom)
+                    return cloneFrom.ShowPageSizeBox;
+                object obj = ViewState["ShowPageSizeBox"];
+
+                //此处为当未设置ShowPageSizeBox属性时，取web.config中AppSettings的ShowPageSizeBox  
+                if (obj == null)
+                {
+                    //默认是false 应该从配置文件里读取出来
+                    obj = false;// System.Configuration.ConfigurationManager.AppSettings["ShowPageSizeBox"];
+                }
+                return (obj == null) ? false : bool.Parse(obj.ToString());
+            }
+            set { ViewState["ShowPageSizeBox"] = value; }
+        }
 
         /// <include file='AspNetPagerDocs.xml' path='AspNetPagerDoc/Property[@name="RecordsRemain"]/*'/>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1499,7 +1520,7 @@ namespace Wuqi.Webdiyer
                 ViewState["AlwaysShowFirstLastPageNumber"] = value;
             }
         }
-        
+
         /// <include file='AspNetPagerDocs.xml' path='AspNetPagerDoc/Property[@name="PageIndexOutOfRangeErrorMessage"]/*'/>
         [Browsable(true), Themeable(true), ANPDescription("desc_PIOutOfRangeMsg"), ANPDefaultValue("def_PIOutOfRangeMsg"), Category("Data")]
         public string PageIndexOutOfRangeErrorMessage

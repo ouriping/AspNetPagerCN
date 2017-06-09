@@ -12,5 +12,5 @@
 </ItemTemplate>
         </asp:DataList>
     <webdiyer:aspnetpager id="AspNetPager1" runat="server" horizontalalign="Center" onpagechanged="AspNetPager1_PageChanged"
-        width="100%"></webdiyer:aspnetpager>
+        width="100%"  ></webdiyer:aspnetpager>
 </asp:Content>

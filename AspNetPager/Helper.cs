@@ -13,6 +13,9 @@ using System.Text;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Text.RegularExpressions;
+//using System.Collections;
+using System.Collections.Generic;
+
 
 namespace Wuqi.Webdiyer
 {
@@ -92,7 +95,33 @@ namespace Wuqi.Webdiyer
                 writer.RenderBeginTag(HtmlTextWriterTag.Div); //<div>
             }
             RenderPagingElements(writer);
+ 
             writer.RenderEndTag(); //</div> or </td>
+        }
+       
+        private void listPageSize(HtmlTextWriter writer)
+        {
+            List<int> ilPageSize = new List<int>() { 10, 15, 20, 25, 30, 50, 100, 200, 1000, 2000, 10000 };//默认页大小
+            ListDictionary dd = new ListDictionary();
+
+            if (!ilPageSize.Exists(a => a == PageSize))
+            {
+                ilPageSize.Add(PageSize);
+            }
+
+            foreach (int ps in ilPageSize)
+            {
+                writer.Write("<option value=\"");
+                writer.Write(ps);
+                writer.Write("\"");
+                if (ps == PageSize)
+                {
+                    writer.Write(" selected=\"true\"");
+                }
+                writer.Write(">");
+                writer.Write(ps);
+                writer.Write("</option>");
+            }
         }
 
         private void RenderPagingElements(HtmlTextWriter writer)
@@ -127,7 +156,7 @@ namespace Wuqi.Webdiyer
             int endIndex = ((startIndex + NumericButtonCount) > PageCount)
                                ? PageCount
                                : (startIndex + NumericButtonCount);
-            
+
             if (NavigationButtonsPosition == NavigationButtonPosition.Left ||
                 NavigationButtonsPosition == NavigationButtonPosition.BothSides)
             {
@@ -196,7 +225,7 @@ namespace Wuqi.Webdiyer
                     string keydownScript = "ANP_keydown(event,\'" + UniqueID + "_btn\');";
                     string keyupScript = "ANP_keyup(\'" + UniqueID + "_input\');";
                     string fp = GetHrefString(1);
-                    string clickScript = "if(" + chkInputScript + "){ANP_goToPage(\'" + boxClientId + "\',\'" + UrlPageIndexName + "\',\'" +fp+ "\',\'"+ GetHrefString(-1) + "\',\'" + UrlPagingTarget + "\'," + PageCount + "," + (ReverseUrlPageIndex ? "true" : "false") + ");};return false;";
+                    string clickScript = "if(" + chkInputScript + "){ANP_goToPage(\'" + boxClientId + "\',\'" + UrlPageIndexName + "\',\'" + fp + "\',\'" + GetHrefString(-1) + "\',\'" + UrlPagingTarget + "\'," + PageCount + "," + (ReverseUrlPageIndex ? "true" : "false") + ");};return false;";
 
                     writer.AddAttribute("onkeydown", keydownScript, false);
                     writer.AddAttribute("onkeyup", keyupScript, false);
@@ -240,7 +269,7 @@ namespace Wuqi.Webdiyer
                     writer.AddAttribute(HtmlTextWriterAttribute.Id, boxClientId);
                     writer.AddAttribute(HtmlTextWriterAttribute.Onchange,
                                         UrlPaging
-                                        ? "ANP_goToPage(\'" + boxClientId + "\',\'" + UrlPageIndexName + "\',\'" +GetHrefString(1)+ "\',\'"+ GetHrefString(-1) + "\',\'" + UrlPagingTarget + "\'," + PageCount + "," + (ReverseUrlPageIndex ? "true" : "false") + ")"
+                                        ? "ANP_goToPage(\'" + boxClientId + "\',\'" + UrlPageIndexName + "\',\'" + GetHrefString(1) + "\',\'" + GetHrefString(-1) + "\',\'" + UrlPagingTarget + "\'," + PageCount + "," + (ReverseUrlPageIndex ? "true" : "false") + ")"
                                             : Page.ClientScript.GetPostBackEventReference(this, null), false);
                     if (!string.IsNullOrEmpty(PageIndexBoxStyle))
                         writer.AddAttribute(HtmlTextWriterAttribute.Style, PageIndexBoxStyle);
@@ -277,6 +306,18 @@ namespace Wuqi.Webdiyer
                         writer.Write(TextAfterPageIndexBox);
                 }
             }
+            //setting page size
+            if (ShowPageSizeBox && this.PageSize < this.RecordCount)
+            {
+                string sizeClientId = UniqueID + "_ChangePageSize";
+                writer.Write("  每页行数：");
+                writer.AddAttribute(HtmlTextWriterAttribute.Name, sizeClientId);
+                writer.AddAttribute(HtmlTextWriterAttribute.Id, sizeClientId);
+                writer.AddAttribute(HtmlTextWriterAttribute.Onchange, Page.ClientScript.GetPostBackEventReference(this, null));
+                writer.RenderBeginTag(HtmlTextWriterTag.Select);
+                listPageSize(writer);
+                writer.RenderEndTag();
+            }
         }
 
         /// <summary>
@@ -296,7 +337,7 @@ namespace Wuqi.Webdiyer
                 }
                 if (EnableUrlRewriting)
                 {
-                    string pattern = (pageIndex == 1&&!string.IsNullOrEmpty(FirstPageUrlRewritePattern)) ? FirstPageUrlRewritePattern : UrlRewritePattern; 
+                    string pattern = (pageIndex == 1 && !string.IsNullOrEmpty(FirstPageUrlRewritePattern)) ? FirstPageUrlRewritePattern : UrlRewritePattern;
                     Regex reg = new Regex("(?<p>%(?<m>[^%]+)%)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                     MatchCollection mts = reg.Matches(pattern);
                     string prmValue;
@@ -310,7 +351,7 @@ namespace Wuqi.Webdiyer
                     }
                     return ResolveUrl(string.Format(url, (urlPageIndex == -1) ? plcHolder : urlPageIndex.ToString()));
                 }
-                return BuildUrlString((urlPageIndex == -1) ? plcHolder : ((urlPageIndex == 1 && !ReverseUrlPageIndex)|| (ReverseUrlPageIndex && urlPageIndex == PageCount) ? null : urlPageIndex.ToString())); //changed on 2013-7-20
+                return BuildUrlString((urlPageIndex == -1) ? plcHolder : ((urlPageIndex == 1 && !ReverseUrlPageIndex) || (ReverseUrlPageIndex && urlPageIndex == PageCount) ? null : urlPageIndex.ToString())); //changed on 2013-7-20
             }
             return Page.ClientScript.GetPostBackClientHyperlink(this, pageIndex.ToString());
         }
@@ -490,7 +531,7 @@ namespace Wuqi.Webdiyer
                 disabled = (CurrentPageIndex <= 1) | !Enabled;
                 if (!ShowDisabledButtons && disabled)
                     return;
-            AddPagingButtonLayoutTag(writer); //<li> or <span>
+                AddPagingButtonLayoutTag(writer); //<li> or <span>
                 pageIndex = (btn == NavigationButton.First) ? 1 : (CurrentPageIndex - 1);
                 writeSpacingStyle(writer);
                 if (PagingButtonLayoutType == PagingButtonLayoutType.None) //add css class and style attribute to pager item directly
